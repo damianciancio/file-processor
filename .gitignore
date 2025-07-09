@@ -1,7 +1,7 @@
-processor-project/node_modules
+**/node_modules
 *.sqlite
-processor-project/dist
-processor-project/.env
+**/dist
+**/.env
 .env.app
 .env.db
 *.dat
