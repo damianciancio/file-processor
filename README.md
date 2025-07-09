@@ -14,7 +14,7 @@ Las capas de seguridad estarían cubiertas por AWS (firewall, grupos de segurida
 
 Para desarrollo, movete al directorio `processor-project` y ejecutá la app desde allí.
 
-## Configuración
+### Configuración
 
 1. Creá un archivo `.env` guiándote por `example.env`.
 
@@ -50,25 +50,25 @@ Para desarrollo, movete al directorio `processor-project` y ejecutá la app desd
   AUTO_START_PROCESS=0
   ```
 
-## Instalación
+### Instalación
 
 ```bash
 npm install
 ```
 
-## Compilación
+### Compilación
 
 ```bash
 npx tsc
 ```
 
-## Ejecución
+### Ejecución
 
 ```bash
 node ./dist/index.js
 ```
 
-## Pruebas
+### Pruebas
 
 ```bash
 npm test
