@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.app  # Archivo específico para la aplicación
+    depends_on:
+      db:
+        condition: service_healthy  # Esta es la línea clave
+    networks:
+      - app-network
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    env_file:
+      - .env.db
+    volumes:
+      - sql_data:/var/opt/mssql
+      - ./sql/init.sql:/usr/src/init.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -U sa -P $${MSSQL_SA_PASSWORD} -Q \"SELECT name FROM sys.databases WHERE name='persons_database'\" -b -C -N || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        # Espera a que SQL Server esté listo
+        /opt/mssql/bin/sqlservr &
+        sleep 30 &
+        echo "hola" &
+        # Ejecuta el script manualmente
+        /opt/mssql-tools18/bin/sqlcmd -U sa -P $${MSSQL_SA_PASSWORD} -i /usr/src/init.sql -C -N
+        # Mantén el contenedor en ejecución
+        echo "listo" &
+        wait
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  sql_data:
