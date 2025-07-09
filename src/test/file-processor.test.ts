@@ -1,4 +1,5 @@
 import { Person } from "../Entity/Person.entity";
+import { MalformedLineException } from "../Exceptions/MalformedLineException";
 import { FileProcessor } from "../FileProcessor";
 
 describe('FileProcessor tests', () => {
@@ -21,7 +22,7 @@ describe('FileProcessor tests', () => {
             };
             const testFileName = './src/test/test-files/test-one-file.dat';
 
-            const processor = new FileProcessor(manager, parser, 1);
+            const processor = new FileProcessor(manager, parser, 1, console);
             await processor.start(testFileName);
             expect(manager.insert).toHaveBeenCalledWith(
                 Person,
@@ -53,7 +54,7 @@ describe('FileProcessor tests', () => {
             };
             const testFileName = './src/test/test-files/test-two-files.dat';
 
-            const processor = new FileProcessor(manager, parser, 2);
+            const processor = new FileProcessor(manager, parser, 2, console);
             await processor.start(testFileName);
             expect(manager.insert).toHaveBeenCalledWith(
                 Person,
@@ -96,7 +97,7 @@ describe('FileProcessor tests', () => {
             };
             const testFileName = './src/test/test-files/test-one-file.dat';
 
-            const processor = new FileProcessor(manager, parser, 2);
+            const processor = new FileProcessor(manager, parser, 2, console);
             await processor.start(testFileName);
             expect(manager.insert).toHaveBeenCalledWith(
                 Person,
@@ -128,7 +129,7 @@ describe('FileProcessor tests', () => {
             };
             const testFileName = './src/test/test-files/test-three-files.dat';
 
-            const processor = new FileProcessor(manager, parser, 2);
+            const processor = new FileProcessor(manager, parser, 2, console);
             await processor.start(testFileName);
             expect(manager.insert).toHaveBeenCalledTimes(2)
             expect(manager.insert).toHaveBeenNthCalledWith(1,
@@ -153,6 +154,52 @@ describe('FileProcessor tests', () => {
             );
 
             expect(manager.insert).toHaveBeenNthCalledWith(2,
+                Person,
+                [{
+                    NombreCompleto: 'Sydney Nicolas',
+                    DNI: '47225682',
+                    Estado: 'Inactivo',
+                    FechaIngreso: '8/23/2015',
+                    EsPEP: true,
+                    EsSujetoObligado: true,
+                }]
+            );
+        });
+    })
+
+    describe('errors', () => {
+        test('one line error and other no error', async () => {
+            const manager = {
+                insert: jest.fn(),
+            };
+            const parser = {
+                parseLine: jest.fn()
+            };
+
+            // first the error
+            parser.parseLine.mockImplementationOnce(
+                () => {
+                    throw new MalformedLineException('test line', new Error('test cause'))
+                }
+            )
+            // then the line
+            .mockImplementation(() => {
+                return {
+                    NombreCompleto: 'Sydney Nicolas',
+                    DNI: '47225682',
+                    Estado: 'Inactivo',
+                    FechaIngreso: '8/23/2015',
+                    EsPEP: true,
+                    EsSujetoObligado: true,
+                }
+            })
+
+
+            const testFileName = './src/test/test-files/test-two-files.dat';
+
+            const processor = new FileProcessor(manager, parser, 1, console);
+            await processor.start(testFileName);
+            expect(manager.insert).toHaveBeenCalledWith(
                 Person,
                 [{
                     NombreCompleto: 'Sydney Nicolas',

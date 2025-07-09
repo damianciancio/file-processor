@@ -37,7 +37,8 @@ AppDataSource.initialize()
         const fileProcessor = new FileProcessor(
             AppDataSource.manager,
             new FileParser(),
-            100
+            100,
+            console
         );
         fileProcessor.start(
             '../backend-challenge-file-ingestion/data-generator/challenge/input/CLIENTES_IN_0425.dat'
