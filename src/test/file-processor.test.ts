@@ -19,7 +19,6 @@ describe('FileProcessor tests', () => {
                     }
                 }),
             };
-            // Sydney|Nicolas|47225682|Inactivo|8/23/2015|true|true
             const testFileName = './src/test/test-files/test-one-file.dat';
 
             const processor = new FileProcessor(manager, parser, 1);
@@ -52,8 +51,6 @@ describe('FileProcessor tests', () => {
                     }
                 }),
             };
-            // Sydney|Nicolas|47225682|Inactivo|8/23/2015|true|true
-            // Alice|Harvey|96284045|Inactivo|11/12/2020|false|false
             const testFileName = './src/test/test-files/test-two-files.dat';
 
             const processor = new FileProcessor(manager, parser, 2);
@@ -97,7 +94,6 @@ describe('FileProcessor tests', () => {
                     }
                 }),
             };
-            // Sydney|Nicolas|47225682|Inactivo|8/23/2015|true|true
             const testFileName = './src/test/test-files/test-one-file.dat';
 
             const processor = new FileProcessor(manager, parser, 2);
@@ -130,7 +126,6 @@ describe('FileProcessor tests', () => {
                     }
                 }),
             };
-            // Sydney|Nicolas|47225682|Inactivo|8/23/2015|true|true
             const testFileName = './src/test/test-files/test-three-files.dat';
 
             const processor = new FileProcessor(manager, parser, 2);
@@ -170,5 +165,4 @@ describe('FileProcessor tests', () => {
             );
         });
     })
-
 });

@@ -3,6 +3,7 @@ import "reflect-metadata"
 import { DataSource, DataSourceOptions } from "typeorm"
 import { Person } from "./Entity/Person.entity";
 import { FileProcessor } from "./FileProcessor";
+import { FileParser } from "./FileParser";
 
 const sqliteTestDatabaseConfig: DataSourceOptions = {
   type: "sqlite",
@@ -33,6 +34,13 @@ const AppDataSource = new DataSource(sqliteTestDatabaseConfig);
 AppDataSource.initialize()
     .then(() => {
         console.log('Conectado a la base de datos ✅');
-        const fileProcessor = new FileProcessor(AppDataSource.manager);
+        const fileProcessor = new FileProcessor(
+            AppDataSource.manager,
+            new FileParser(),
+            100
+        );
+        fileProcessor.start(
+            '../backend-challenge-file-ingestion/data-generator/challenge/input/CLIENTES_IN_0425.dat'
+        );
     })
     .catch((error) => console.log(error))
