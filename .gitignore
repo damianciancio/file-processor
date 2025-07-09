@@ -1,7 +1,7 @@
-./processor-project/node_modules
+processor-project/node_modules
 *.sqlite
-./processor-project/dist
-./processor-project/.env
+processor-project/dist
+processor-project/.env
 .env.app
 .env.db
 *.dat
