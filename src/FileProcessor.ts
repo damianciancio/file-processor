@@ -3,7 +3,6 @@ import { EntityTarget } from 'typeorm';
 import { Person } from './Entity/Person.entity';
 import { MalformedLineException } from './Exceptions/MalformedLineException';
 const { createInterface } = require('readline');
-const { pipeline } = require('stream/promises');
 
 export interface EntityManagerInterface {
     insert(type: EntityTarget<Person>, entities: any[]): any
@@ -15,6 +14,7 @@ type FileProcessorStatus = {
     currentLine: number,
     currentErrors: number,
     hasFinished: boolean,
+    hasStarted: boolean,
     elapsedTime: number
 }
 
@@ -35,12 +35,14 @@ export class FileProcessor {
             currentLine: 0,
             currentErrors: 0,
             hasFinished: false,
+            hasStarted: false,
             elapsedTime: 0,
         }
     }
 
     async start(filePath: string) {
         let inserted = 0;
+        this.status.hasStarted = true;
         const start = Date.now();
         
         const lineIterator = this.lineGenerator(filePath);
@@ -50,8 +52,8 @@ export class FileProcessor {
             if (record.error !== null) {
                 this.status.currentErrors++;
                 this.logError(record.error, this.status.currentLine);
-                // aca se podría tener un batch con errores y cuando se llene enviarlos a CloudWatch
-                // O registrarlos por consola
+                // aca se podría tener un batch con errores 
+                // y cuando se llene enviarlos a CloudWatch
             } else {
                 const line = record.record;
                 batchLines.push(line);
