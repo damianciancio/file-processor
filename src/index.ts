@@ -4,6 +4,8 @@ import { DataSource, DataSourceOptions } from "typeorm"
 import { Person } from "./Entity/Person.entity";
 import { FileProcessor } from "./FileProcessor";
 import { FileParser } from "./FileParser";
+import http from 'http'; 
+import url from 'url'
 
 const sqliteTestDatabaseConfig: DataSourceOptions = {
   type: "sqlite",
@@ -40,6 +42,23 @@ AppDataSource.initialize()
             100,
             console
         );
+        const server = http.createServer((req, res) => {
+            // Parse the URL
+            const parsedUrl = url.parse(req!.url!, true);
+            const pathname = parsedUrl.pathname;
+
+            if (pathname === '/health') {
+                res.writeHead(200, { 'Content-Type': 'text/json' });
+                res.end(JSON.stringify(fileProcessor.getStatus()));
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(pathname);
+        });
+        const PORT = 3000;
+        server.listen(PORT, 'localhost', () => {
+            console.log(`Server running at http://localhost:${PORT}/`);
+        });
         fileProcessor.start(
             '../backend-challenge-file-ingestion/data-generator/challenge/input/CLIENTES_IN_0425.dat'
         );

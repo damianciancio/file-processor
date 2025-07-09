@@ -10,9 +10,19 @@ export interface EntityManagerInterface {
 };
 export interface FileParserInterface { parseLine(line: string): {} };
 export interface LoggerInterface { log(text: any): void }
+
+type FileProcessorStatus = {
+    currentLine: number,
+    currentErrors: number,
+    hasFinished: boolean,
+    elapsedTime: number
+}
+
+
 export class FileProcessor {
 
     private batchSize: number = 100;
+    private status: FileProcessorStatus;
 
     constructor(
         private manager: EntityManagerInterface,
@@ -21,19 +31,25 @@ export class FileProcessor {
         private logger: LoggerInterface
     ) {
         this.batchSize = batchSize;
+        this.status = {
+            currentLine: 0,
+            currentErrors: 0,
+            hasFinished: false,
+            elapsedTime: 0,
+        }
     }
 
     async start(filePath: string) {
-        let counter = 0;
         let inserted = 0;
         const start = Date.now();
         
         const lineIterator = this.lineGenerator(filePath);
         const batchLines = [];
         for await (const record of lineIterator) {
-            counter++;
+            this.status.currentLine++;
             if (record.error !== null) {
-                this.logError(record.error, counter);
+                this.status.currentErrors++;
+                this.logError(record.error, this.status.currentLine);
                 // aca se podría tener un batch con errores y cuando se llene enviarlos a CloudWatch
                 // O registrarlos por consola
             } else {
@@ -42,7 +58,8 @@ export class FileProcessor {
                 inserted++;
             }
             if (batchLines.length % this.batchSize === 0) {
-                this.logger.log(`Processed ${batchLines.length} lines in ${(Date.now() - start)/1000}s`);
+                this.status.elapsedTime = (Date.now() - start)/1000;
+                this.logger.log(`Processed ${batchLines.length} lines in ${this.status.elapsedTime}s`);
                 this.logger.log(`Inserting into database...`);
                 this.logger.log(batchLines);
                 await this.manager.insert(Person, [...batchLines]);
@@ -57,8 +74,13 @@ export class FileProcessor {
                 // Reset array
                 batchLines.splice(0, batchLines.length);
         }
+        this.status.hasFinished = true;
         this.logger.log(`Total lines processed: ${inserted}`);
-        this.logger.log(`Time taken: ${(Date.now() - start)/1000} seconds`);
+        this.logger.log(`Time taken: ${this.status.elapsedTime} seconds`);
+    }
+
+    public getStatus() {
+        return this.status;
     }
 
     private async* lineGenerator(filePath: string) {
