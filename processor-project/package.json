@@ -7,7 +7,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node --env-file=.env ./dist/index.js",
+    "build": "tsc"
   },
   "devDependencies": {
     "@jest/globals": "^30.0.4",
